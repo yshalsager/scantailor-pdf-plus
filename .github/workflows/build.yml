@@ -1,6 +1,7 @@
 name: Build ScanTailor Experimental
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master, develop ]
   pull_request:
@@ -63,37 +64,23 @@ jobs:
         file scantailor-experimental* || true
         
   build-macos:
-    runs-on: macos-latest
-    
+    runs-on: macos-15
+    permissions:
+      contents: read
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Install dependencies via Homebrew
-      run: |
-        brew update
-        brew install \
-          cmake \
-          ninja \
-          eigen \
-          boost \
-          qt6 \
-          jpeg \
-          libpng \
-          libtiff \
-          opencv
-          
-    - name: Configure CMake
-      run: |
-        cmake -B build \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_PREFIX_PATH="$(brew --prefix qt6)" \
-          -DST_USE_QT6=ON \
-          -DEIGEN3_INCLUDE_DIR="$(brew --prefix eigen)/include/eigen3" \
-          -G Ninja
-          
-    - name: Build
-      run: cmake --build build --parallel $(sysctl -n hw.ncpu)
+
+    - name: Build app and DMG
+      run: ./build-macos.sh
+
+    - name: Upload macOS DMG
+      uses: actions/upload-artifact@v4
+      with:
+        name: scantailor-pdf-plus-macos-${{ runner.arch }}
+        path: build/scantailor-pdf-plus-macos-*.dmg
+        if-no-files-found: error
       
   build-windows:
     runs-on: windows-latest
