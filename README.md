@@ -79,6 +79,21 @@ See the upstream wiki for general usage:
 
 PDF input requires a **Qt6** build with the Qt Pdf module.
 
+### Build on macOS
+
+With [Homebrew](https://brew.sh) and Xcode Command Line Tools installed (`xcode-select --install`), run:
+
+```bash
+./build-macos.sh
+```
+
+The script installs missing Homebrew dependencies, downloads checksum-verified Eigen 3.4.0, and builds for the current Mac's architecture with PDF import/export enabled. Outputs:
+
+- App: `build/macos/scantailor-experimental.app`
+- DMG: `build/scantailor-pdf-plus-macos-<architecture>.dmg`
+
+The app is ad-hoc signed, not notarized. OpenCL is disabled due to macOS header incompatibilities. The script checks startup but does not run the test suite; run `ctest --test-dir build --output-on-failure` separately. On the tested Apple Silicon/Qt 6.12 build, two of four suites fail in image-processing and Qt polygon checks.
+
 Upstream Windows install (without PDF+ features):
 
 ```cmd
